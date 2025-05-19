@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>四面体上的数值积分演示demo</title>
+        <link rel="stylesheet" href="styles.css">
+        <!-- MathJax 用于渲染LaTeX公式 -->
+        <script
+            src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <!-- Three.js 用于3D绘图 -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    </head>
+    <body>
+        <header>
+            <h1>四面体上的数值积分演示demo</h1>
+        </header>
+
+        <main>
+            <div class="container">
+                <div class="left-panel">
+                    <!-- 积分公式选择与函数输入区域 -->
+                    <div class="control-section">
+                        <div class="form-group">
+                            <label for="formula-selector">积分公式选择器：</label>
+                            <select id="formula-selector">
+                                <option value="ORDER1POINT4">ORDER1POINT4
+                                    (节点总数为4, 代数精度为1)</option>
+                                <option value="ORDER4POINT23">ORDER4POINT23
+                                    (节点总数为23, 代数精度为4)</option>
+                                <option
+                                    value="ORDER7POINT50_v1">ORDER7POINT50_v1
+                                    (节点总数为50, 代数精度为7)</option>
+                                <option
+                                    value="ORDER7POINT50_v2">ORDER7POINT50_v2
+                                    (节点总数为50, 代数精度为7)</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="function-expression">函数表达式：</label>
+                            <input type="text" id="function-expression"
+                                placeholder="输入关于x,y,z的函数，使用tex语法">
+                        </div>
+
+                        <div class="form-group">
+                            <label>积分公式说明：</label>
+                            <div id="formula-description"
+                                class="description-box"></div>
+                        </div>
+
+                        <!-- 自定义积分公式区域 -->
+                        <div id="custom-formula-section" class="hidden">
+                            <div class="form-group">
+                                <label
+                                    for="custom-formula-name">自定义积分公式的名称：</label>
+                                <input type="text" id="custom-formula-name"
+                                    placeholder="custom">
+                            </div>
+
+                            <div class="form-group">
+                                <label
+                                    for="custom-formula-data">自定义积分公式的节点及权重：</label>
+                                <textarea id="custom-formula-data" rows="6"
+                                    placeholder="输入n×4的二维数组，每行前三位为坐标，最后一位为积分权重"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- 计算结果输出区域 -->
+                        <div class="form-group">
+                            <label>计算结果的输出：</label>
+                            <div id="calculation-result"
+                                class="result-box"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <button id="calculate-btn">开始计算</button>
+                        </div>
+                    </div>
+
+                    <!-- 绘图控制区域 -->
+                    <div class="control-section">
+                        <div class="form-group">
+                            <label for="node-color">积分节点颜色：</label>
+                            <input type="text" id="node-color" value="red"
+                                placeholder="red, white, black, green, yellow, purple 或 RGB">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edge-color">边的颜色：</label>
+                            <input type="text" id="edge-color" value="black"
+                                placeholder="red, white, black, green, yellow, purple 或 RGB">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fill-color">区域填充颜色：</label>
+                            <input type="text" id="fill-color"
+                                value="rgba(0,0,255,0.2)"
+                                placeholder="支持rgba格式设置透明度">
+                        </div>
+
+                        <div class="form-group">
+                            <button id="save-image-btn" disabled>保存图片</button>
+                            <button id="draw-btn">绘制节点分布</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="right-panel">
+                    <!-- 绘图区 -->
+                    <div id="canvas-container">
+                        <canvas id="render-canvas"></canvas>
+                    </div>
+                    <div class="canvas-info">
+                        <p>积分节点分布情况图</p>
+                        <p class="hint">提示：鼠标拖动可旋转视角，滚轮可缩放</p>
+                    </div>
+                </div>
+
+                <!-- 四面体顶点坐标设置 -->
+                <div class="control-section">
+                    <div class="form-group">
+                        <label for="vertex1">第一个顶点坐标：</label>
+                        <input type="text" id="vertex1" value="0,0,0"
+                            placeholder="x,y,z">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vertex2">第二个顶点坐标：</label>
+                        <input type="text" id="vertex2" value="1,0,0"
+                            placeholder="x,y,z">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vertex3">第三个顶点坐标：</label>
+                        <input type="text" id="vertex3" value="0,1,0"
+                            placeholder="x,y,z">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vertex4">第四个顶点坐标：</label>
+                        <input type="text" id="vertex4" value="0,0,1"
+                            placeholder="x,y,z">
+                    </div>
+
+                    <div class="form-group">
+                        <button id="reset-btn">初始化</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>四面体上的数值积分演示demo</p>
+        </footer>
+
+        <script src="formulas.js"></script>
+        <script src="renderer.js"></script>
+        <script src="calculator.js"></script>
+        <script src="main.js"></script>
+    </body>
+</html>
