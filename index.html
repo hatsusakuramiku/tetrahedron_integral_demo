@@ -158,8 +158,12 @@
         </main>
 
         <footer>
-            <p>四面体上的数值积分demo</p>
+            <center><p>&copy; <span id="year"></span> Created by <a
+                        href="https://hsmk.mikufans.date">Hatsusakuramiku</a></p></center>
         </footer>
+        <script>
+            document.getElementById("year").textContent = new Date().getFullYear();
+        </script>
 
         <script src="formulas.js"></script>
         <script src="renderer.js"></script>
