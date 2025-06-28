@@ -158,11 +158,11 @@
         </main>
 
         <footer>
-            <center><p>&copy; <span id="year"></span> Created by <a
+            <center><p>&copy;<span id="year"></span> Created by <a
                         href="https://hsmk.mikufans.date">Hatsusakuramiku</a></p></center>
         </footer>
         <script>
-            document.getElementById("year").textContent = new Date().getFullYear();
+            document.getElementById("year").textContent = new Date().getFullYear() == 2025 ? "2025" : "2025 - " + new Date().getFullYear();
         </script>
 
         <script src="formulas.js"></script>
